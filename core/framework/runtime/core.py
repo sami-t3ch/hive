@@ -257,9 +257,13 @@ class Runtime:
             )
             return
 
+        # ZETA ADJUSTMENT: Handle large results via Pointer Pattern
+        from framework.utils.pointer import handle_large_result
+        processed_result = handle_large_result(result, run_id=self._current_run.id)
+
         outcome = Outcome(
             success=success,
-            result=result,
+            result=processed_result,
             error=error,
             summary=summary,
             state_changes=state_changes or {},

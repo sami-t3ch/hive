@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./.hive:/root/.hive
+      - ./tools:/app/tools
+      - ../MPBOTINFO:/app/mpbotinfo
+    env_file: .env
+    environment:
+      - DATABASE_URL=sqlite:////root/.hive/hive.db
+      - include_unverified_tools=true
+    command: uv run hive serve --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - tools
+
+  tools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONPATH=/app/tools/src
+      - MCP_PORT=4001
+      - INCLUDE_UNVERIFIED_TOOLS=true
+    env_file: .env
+    ports:
+      - "4001:4001"
+    command: uv run python tools/mcp_server.py --port 4001
+    volumes:
+      - ./.hive:/root/.hive
+      - ./tools:/app/tools
+      - ../MPBOTINFO:/app/mpbotinfo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend is served by the backend on port 8000
+
+volumes:
+  hive_data:

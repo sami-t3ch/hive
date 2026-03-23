@@ -761,7 +761,7 @@ class SessionManager:
 
         from framework.runtime.event_bus import EventType as _ET
 
-        _DIGEST_COOLDOWN = 300.0  # seconds between mid-run snapshots
+        _DIGEST_COOLDOWN = 30.0  # seconds between mid-run snapshots (Protocol Zeta Optimized)
 
         if session.worker_digest_sub is not None:
             try:
